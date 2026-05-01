@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XIOSTORE — Moda Contemporánea</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════════════ -->
+<header class="nav-header" id="navHeader">
+  <div class="nav-inner">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="#inicio" class="brand" data-page="inicio">XIOSTORE</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#inicio"   data-page="inicio"   class="nav-link">Inicio</a>
+      <a href="#catalogo" data-page="catalogo" class="nav-link">Catálogo</a>
+      <a href="#contacto" data-page="contacto" class="nav-link">Contacto</a>
+      <a href="#admin"    data-page="admin"    class="nav-link nav-admin">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══ PAGES ════════════════════════════════════════════════════════════════ -->
+<main id="appRoot">
+
+  <!-- ── INICIO ── -->
+  <section class="page active" id="page-inicio">
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <p class="hero-eyebrow">Colección 2025</p>
+        <h1 class="hero-title">Vestir con<br/><em>intención</em></h1>
+        <p class="hero-sub">Prendas que hablan de quién eres sin que tengas que decir una palabra.</p>
+        <button class="btn-primary" onclick="navigate('catalogo')">Ver Catálogo</button>
+      </div>
+      <div class="hero-scroll">scroll</div>
+    </div>
+
+    <section class="featured-section">
+      <div class="section-header">
+        <span class="section-tag">Selección</span>
+        <h2 class="section-title">Piezas Destacadas</h2>
+      </div>
+      <div class="products-grid" id="featuredGrid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </section>
+
+    <section class="values-section">
+      <div class="value-item">
+        <div class="value-icon">◈</div>
+        <h3>Calidad Premium</h3>
+        <p>Materiales seleccionados de las mejores textilerías del mundo.</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">◉</div>
+        <h3>Diseño Atemporal</h3>
+        <p>Piezas que trascienden temporadas y tendencias pasajeras.</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">◎</div>
+        <h3>Envío a Colombia</h3>
+        <p>Despachos a todo el territorio nacional con seguimiento en tiempo real.</p>
+      </div>
+    </section>
+  </section>
+
+  <!-- ── CATÁLOGO ── -->
+  <section class="page" id="page-catalogo">
+    <div class="page-hero-mini">
+      <h1>Catálogo</h1>
+      <p>Toda la colección</p>
+    </div>
+    <div class="catalog-container">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-cat="todos">Todos</button>
+        <button class="filter-btn" data-cat="Mujer">Mujer</button>
+        <button class="filter-btn" data-cat="Hombre">Hombre</button>
+        <button class="filter-btn" data-cat="Unisex">Unisex</button>
+      </div>
+      <div class="products-grid" id="catalogGrid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACTO ── -->
+  <section class="page" id="page-contacto">
+    <div class="page-hero-mini">
+      <h1>Contacto</h1>
+      <p>Estamos para ayudarte</p>
+    </div>
+    <div class="contact-container">
+      <div class="contact-info">
+        <h2>Encuéntranos</h2>
+        <div class="contact-item">
+          <span class="contact-icon">◎</span>
+          <div>
+            <strong>Dirección</strong>
+            <p>Calle 85 #11-54, Bogotá D.C., Colombia</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">◈</span>
+          <div>
+            <strong>Horarios</strong>
+            <p>Lunes a Sábado: 10:00 am – 7:00 pm<br/>Domingo: 12:00 pm – 5:00 pm</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">◉</span>
+          <div>
+            <strong>WhatsApp</strong>
+            <p><a href="https://wa.me/573001234567" target="_blank">+57 300 123 4567</a></p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">✦</span>
+          <div>
+            <strong>Correo</strong>
+            <p><a href="mailto:hola@maisonco.com">hola@maisonco.com</a></p>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="#" target="_blank">Instagram</a>
+          <a href="#" target="_blank">Facebook</a>
+          <a href="#" target="_blank">TikTok</a>
+        </div>
+      </div>
+      <div class="map-wrapper">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.1234567!2d-74.0483!3d4.6597!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sCalle+85+%2311-54%2C+Bogot%C3%A1!5e0!3m2!1ses!2sco!4v1234567890"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          title="Ubicación XIOSTORE">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ADMIN ── -->
+  <section class="page" id="page-admin">
+    <!-- Login -->
+    <div id="adminLogin" class="admin-login">
+      <div class="login-box">
+        <div class="login-brand">XIOSTORE <span>Admin</span></div>
+        <p>Acceso restringido</p>
+        <div id="loginError" class="error-msg hidden"></div>
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" id="loginUser" placeholder="admin" />
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="loginPass" placeholder="••••••••" />
+        </div>
+        <button class="btn-primary" id="btnLogin">Ingresar</button>
+      </div>
+    </div>
+
+    <!-- Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
+      <div class="admin-header">
+        <h1>Panel de Administración</h1>
+        <button class="btn-outline" id="btnLogout">Cerrar sesión</button>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="lista">📦 Productos</button>
+        <button class="admin-tab" data-tab="nuevo">➕ Agregar</button>
+      </div>
+
+      <!-- Lista de productos -->
+      <div class="admin-content active" id="tab-lista">
+        <div class="admin-search">
+          <input type="text" id="adminSearch" placeholder="Buscar producto..." />
+        </div>
+        <div id="adminProductList"></div>
+      </div>
+
+      <!-- Formulario nuevo/editar -->
+      <div class="admin-content" id="tab-nuevo">
+        <form class="admin-form" id="productForm">
+          <input type="hidden" id="editId" />
+          <h2 id="formTitle">Nuevo Producto</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="fNombre" placeholder="Blazer Estructurado..." required />
+            </div>
+            <div class="form-group">
+              <label>Precio (COP) *</label>
+              <input type="number" id="fPrecio" placeholder="120000" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select id="fCategoria" required>
+                <option value="">Seleccionar...</option>
+                <option value="Mujer">Mujer</option>
+                <option value="Hombre">Hombre</option>
+                <option value="Unisex">Unisex</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Destacado</label>
+              <select id="fDestacado">
+                <option value="false">No</option>
+                <option value="true">Sí — aparece en inicio</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción *</label>
+            <textarea id="fDescripcion" rows="3" placeholder="Describe la prenda..." required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Material</label>
+              <input type="text" id="fMaterial" placeholder="100% Algodón, 70% Lana..." />
+            </div>
+            <div class="form-group">
+              <label>Cuidados</label>
+              <input type="text" id="fCuidados" placeholder="Lavar a mano, 30°C..." />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tallas <small>(separadas por coma)</small></label>
+              <input type="text" id="fTallas" placeholder="XS, S, M, L, XL" />
+            </div>
+            <div class="form-group">
+              <label>Colores <small>(separados por coma)</small></label>
+              <input type="text" id="fColores" placeholder="Negro, Blanco, Rojo" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Imagen del producto</label>
+            <div class="file-drop" id="fileDrop">
+              <input type="file" id="fImagen" accept="image/*" hidden />
+              <div class="file-drop-inner" onclick="document.getElementById('fImagen').click()">
+                <span class="file-icon">⊕</span>
+                <p>Clic para subir imagen</p>
+                <small>JPG, PNG, WEBP · Máx 5MB</small>
+              </div>
+              <img id="imgPreview" class="img-preview hidden" alt="Vista previa" />
+            </div>
+          </div>
+
+          <div id="formMsg" class="form-msg hidden"></div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-outline" id="btnCancelEdit">Cancelar</button>
+            <button type="submit" class="btn-primary" id="btnSubmit">Guardar Producto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ MODAL PRODUCTO ════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-grid">
+      <div class="modal-img-wrap">
+        <img id="modalImg" src="" alt="" />
+      </div>
+      <div class="modal-details">
+        <span class="modal-cat" id="modalCat"></span>
+        <h2 class="modal-name" id="modalName"></h2>
+        <p class="modal-price" id="modalPrice"></p>
+        <p class="modal-desc" id="modalDesc"></p>
+
+        <div class="selector-wrap">
+          <label>Talla</label>
+          <div class="size-options" id="sizeOptions"></div>
+        </div>
+
+        <div class="selector-wrap">
+          <label>Color</label>
+          <div class="color-options" id="colorOptions"></div>
+        </div>
+
+        <button class="btn-primary btn-buy" id="btnBuy">Comprar por WhatsApp</button>
+
+        <details class="product-info-accordion">
+          <summary>ℹ Información del producto</summary>
+          <div class="info-body">
+            <div class="info-row"><strong>Material:</strong><span id="infoMaterial"></span></div>
+            <div class="info-row"><strong>Cuidados:</strong><span id="infoCuidados"></span></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═════════════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

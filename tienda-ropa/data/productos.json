@@ -1,0 +1,185 @@
+[
+  {
+    "id": "1",
+    "nombre": "Blazer Estructurado Noir",
+    "precio": 189000,
+    "categoria": "Mujer",
+    "descripcion": "Blazer de corte estructurado con solapas clásicas. Perfecto para ocasiones formales o semi-formales.",
+    "material": "70% Lana Merino, 25% Poliéster, 5% Elastano",
+    "cuidados": "Lavar en seco. No torcer. Planchar a temperatura media.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colores": [
+      "Negro",
+      "Gris Antracita",
+      "Camel"
+    ],
+    "imagen": "/uploads/placeholder-blazer.jpg",
+    "destacado": true
+  },
+  {
+    "id": "2",
+    "nombre": "Pantalón Palazzo Lino",
+    "precio": 124000,
+    "categoria": "Mujer",
+    "descripcion": "Pantalón de corte palazzo en lino puro. Fluido, elegante y fresco para los días cálidos.",
+    "material": "100% Lino",
+    "cuidados": "Lavar a mano con agua fría. Tendido en horizontal.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "colores": [
+      "Blanco Roto",
+      "Arena",
+      "Verde Salvia"
+    ],
+    "imagen": "/uploads/placeholder-palazzo.jpg",
+    "destacado": true
+  },
+  {
+    "id": "3",
+    "nombre": "Camisa Oxford Slim",
+    "precio": 98000,
+    "categoria": "Hombre",
+    "descripcion": "Camisa Oxford de algodón premium con corte slim moderno. Versátil para el día a día.",
+    "material": "100% Algodón Oxford",
+    "cuidados": "Lavar a máquina 30°C. Planchar ligeramente húmeda.",
+    "tallas": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "colores": [
+      "Azul Celeste",
+      "Blanco",
+      "Gris Perla"
+    ],
+    "imagen": "/uploads/placeholder-camisa.jpg",
+    "destacado": true
+  },
+  {
+    "id": "4",
+    "nombre": "Vestido Midi Satinado",
+    "precio": 215000,
+    "categoria": "Mujer",
+    "descripcion": "Vestido midi de satén con escote en V y corte de sesgo. Sofisticado y atemporal.",
+    "material": "100% Satén de Seda",
+    "cuidados": "Solo limpieza en seco. Guardar en funda protectora.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L"
+    ],
+    "colores": [
+      "Borgoña",
+      "Champagne",
+      "Negro"
+    ],
+    "imagen": "/uploads/placeholder-vestido.jpg",
+    "destacado": false
+  },
+  {
+    "id": "6",
+    "nombre": "Chaqueta Cuero Vintage",
+    "precio": 420000,
+    "categoria": "Unisex",
+    "descripcion": "Chaqueta en cuero genuino envejecido artesanalmente. Pieza statement que mejora con el tiempo.",
+    "material": "Cuero Bovino 100% Natural",
+    "cuidados": "Aplicar crema hidratante de cuero mensualmente. Guardar en lugar fresco y seco.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colores": [
+      "Marrón Tostado",
+      "Negro"
+    ],
+    "imagen": "/uploads/placeholder-chaqueta.jpg",
+    "destacado": true
+  },
+  {
+    "id": "1777428960419",
+    "nombre": "ooooooooo",
+    "precio": 123456,
+    "categoria": "Hombre",
+    "descripcion": "hol",
+    "material": "70% Lana Merino, 25% Poliéster, 5% Elastano",
+    "cuidados": "Lavar en seco. No torcer. Planchar a temperatura media.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colores": [
+      "Negro",
+      "Gris Antracita",
+      "Camel"
+    ],
+    "imagen": "/uploads/producto-1777428960413.jpeg",
+    "destacado": false
+  },
+  {
+    "id": "1777431376661",
+    "nombre": "buzo azul",
+    "precio": 100000,
+    "categoria": "Hombre",
+    "descripcion": "buzo azul",
+    "material": "70% Lana Merino, 25% Poliéster, 5% Elastano",
+    "cuidados": "Lavar en seco. No torcer. Planchar a temperatura media.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colores": [
+      "Negro",
+      "Gris Antracita",
+      "Camel"
+    ],
+    "imagen": "/uploads/producto-1777431376658.jpg",
+    "destacado": true
+  },
+  {
+    "id": "1777432980908",
+    "nombre": "ooooooooo",
+    "precio": 1210000,
+    "categoria": "Unisex",
+    "descripcion": "lol",
+    "material": "70% Lana Merino, 25% Poliéster, 5% Elastano",
+    "cuidados": "Lavar en seco. No torcer. Planchar a temperatura media.",
+    "tallas": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colores": [
+      "Negro",
+      "Gris Antracita",
+      "Camel"
+    ],
+    "imagen": "/uploads/producto-1777432980890.png",
+    "destacado": true
+  }
+]
