@@ -10,7 +10,7 @@ let selectedColor = null;
 let isAdmin       = false;
 let editingId     = null;
 
-const WA_NUMBER = '573001234567'; // ← Cambia este número
+const WA_NUMBER = '573112835010'; // ← Cambia este número
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
