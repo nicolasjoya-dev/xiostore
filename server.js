@@ -291,11 +291,23 @@ app.delete(
 
       const prod = productos[idx];
 
-      // Eliminar imagen de Cloudinary
+      // Eliminar imagen de Cloudinary solo si existe
       if (prod.imagenPublicId) {
-        await cloudinary.uploader.destroy(
-          prod.imagenPublicId
-        );
+        try {
+          await cloudinary.uploader.destroy(
+            prod.imagenPublicId
+          );
+
+          console.log(
+            'Imagen eliminada de Cloudinary'
+          );
+
+        } catch (cloudErr) {
+          console.log(
+            'Error eliminando imagen Cloudinary:',
+            cloudErr.message
+          );
+        }
       }
 
       productos.splice(idx, 1);
@@ -307,6 +319,8 @@ app.delete(
       });
 
     } catch (err) {
+      console.error(err);
+
       res.status(500).json({
         error: err.message
       });
