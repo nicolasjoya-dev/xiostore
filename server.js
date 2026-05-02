@@ -2,11 +2,11 @@ const express = require('express');
 const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ─── Cloudinary ───────────────────────────────────────────────────────────────
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
@@ -29,6 +29,45 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// ─── Firebase ─────────────────────────────────────────────────────────────────
+const admin = require('firebase-admin');
+
+admin.initializeApp({
+  credential: admin.credential.cert({
+    type: 'service_account',
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+    token_uri: 'https://oauth2.googleapis.com/token',
+  })
+});
+
+const db = admin.firestore();
+
+async function getProductos() {
+  const snapshot = await db.collection('productos').get();
+  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+}
+
+async function saveProductos(productos) {
+  const batch = db.batch();
+
+  // Borra todos los documentos actuales
+  const snapshot = await db.collection('productos').get();
+  snapshot.docs.forEach(doc => batch.delete(doc.ref));
+
+  // Escribe todos los productos con su id como doc id
+  productos.forEach(p => {
+    const ref = db.collection('productos').doc(String(p.id));
+    batch.set(ref, p);
+  });
+
+  await batch.commit();
+}
+
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,59 +84,49 @@ app.use(session({
 }));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const DATA_PATH = path.join(__dirname, 'data/productos.json');
-
-function getProductos() {
-  try {
-    return JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function saveProductos(productos) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(productos, null, 2), 'utf8');
-}
-
 const ADMIN_USER = process.env.ADMIN_USER || 'Xiomi0806';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'Xiomi0806';
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.admin) return next();
-
-  res.status(401).json({
-    error: 'No autorizado'
-  });
+  res.status(401).json({ error: 'No autorizado' });
 }
 
 // ─── API: Productos ───────────────────────────────────────────────────────────
-app.get('/api/productos', (req, res) => {
-  const productos = getProductos();
-  const { categoria, destacado } = req.query;
+app.get('/api/productos', async (req, res) => {
+  try {
+    const productos = await getProductos();
+    const { categoria, destacado } = req.query;
 
-  let filtrado = productos;
+    let filtrado = productos;
 
-  if (categoria) {
-    filtrado = filtrado.filter(p => p.categoria === categoria);
+    if (categoria) {
+      filtrado = filtrado.filter(p => p.categoria === categoria);
+    }
+
+    if (destacado === 'true') {
+      filtrado = filtrado.filter(p => p.destacado);
+    }
+
+    res.json(filtrado);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  if (destacado === 'true') {
-    filtrado = filtrado.filter(p => p.destacado);
-  }
-
-  res.json(filtrado);
 });
 
-app.get('/api/productos/:id', (req, res) => {
-  const producto = getProductos().find(p => p.id === req.params.id);
+app.get('/api/productos/:id', async (req, res) => {
+  try {
+    const productos = await getProductos();
+    const producto = productos.find(p => p.id === req.params.id);
 
-  if (!producto) {
-    return res.status(404).json({
-      error: 'No encontrado'
-    });
+    if (!producto) {
+      return res.status(404).json({ error: 'No encontrado' });
+    }
+
+    res.json(producto);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  res.json(producto);
 });
 
 // ─── Crear producto ───────────────────────────────────────────────────────────
@@ -105,9 +134,9 @@ app.post(
   '/api/admin/productos',
   requireAuth,
   upload.single('imagen'),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const productos = getProductos();
+      const productos = await getProductos();
 
       const nuevoId = String(Date.now());
 
@@ -139,34 +168,18 @@ app.post(
         cuidados: cuidados || '',
         tallas,
         colores,
-
-        // CLOUDINARY
-        imagen: req.file
-          ? req.file.path
-          : '/img/placeholder.jpg',
-
-        imagenPublicId: req.file
-          ? req.file.filename
-          : null,
-
-        destacado:
-          destacado === 'true' ||
-          destacado === 'on'
+        imagen: req.file ? req.file.path : '/img/placeholder.jpg',
+        imagenPublicId: req.file ? req.file.filename : null,
+        destacado: destacado === 'true' || destacado === 'on'
       };
 
       productos.push(nuevo);
+      await saveProductos(productos);
 
-      saveProductos(productos);
-
-      res.json({
-        success: true,
-        producto: nuevo
-      });
+      res.json({ success: true, producto: nuevo });
 
     } catch (err) {
-      res.status(500).json({
-        error: err.message
-      });
+      res.status(500).json({ error: err.message });
     }
   }
 );
@@ -176,18 +189,14 @@ app.put(
   '/api/admin/productos/:id',
   requireAuth,
   upload.single('imagen'),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const productos = getProductos();
+      const productos = await getProductos();
 
-      const idx = productos.findIndex(
-        p => p.id === req.params.id
-      );
+      const idx = productos.findIndex(p => p.id === req.params.id);
 
       if (idx === -1) {
-        return res.status(404).json({
-          error: 'No encontrado'
-        });
+        return res.status(404).json({ error: 'No encontrado' });
       }
 
       const {
@@ -210,63 +219,27 @@ app.put(
 
       productos[idx] = {
         ...productos[idx],
-
-        nombre:
-          nombre || productos[idx].nombre,
-
-        precio:
-          precio
-            ? Number(precio)
-            : productos[idx].precio,
-
-        categoria:
-          categoria || productos[idx].categoria,
-
-        descripcion:
-          descripcion || productos[idx].descripcion,
-
-        material:
-          material !== undefined
-            ? material
-            : productos[idx].material,
-
-        cuidados:
-          cuidados !== undefined
-            ? cuidados
-            : productos[idx].cuidados,
-
+        nombre: nombre || productos[idx].nombre,
+        precio: precio ? Number(precio) : productos[idx].precio,
+        categoria: categoria || productos[idx].categoria,
+        descripcion: descripcion || productos[idx].descripcion,
+        material: material !== undefined ? material : productos[idx].material,
+        cuidados: cuidados !== undefined ? cuidados : productos[idx].cuidados,
         tallas,
         colores,
-
-        // CLOUDINARY
-        imagen: req.file
-          ? req.file.path
-          : productos[idx].imagen,
-
-        imagenPublicId: req.file
-          ? req.file.filename
-          : productos[idx].imagenPublicId,
-
-        destacado:
-          destacado !== undefined
-            ? (
-                destacado === 'true' ||
-                destacado === 'on'
-              )
-            : productos[idx].destacado
+        imagen: req.file ? req.file.path : productos[idx].imagen,
+        imagenPublicId: req.file ? req.file.filename : productos[idx].imagenPublicId,
+        destacado: destacado !== undefined
+          ? (destacado === 'true' || destacado === 'on')
+          : productos[idx].destacado
       };
 
-      saveProductos(productos);
+      await saveProductos(productos);
 
-      res.json({
-        success: true,
-        producto: productos[idx]
-      });
+      res.json({ success: true, producto: productos[idx] });
 
     } catch (err) {
-      res.status(500).json({
-        error: err.message
-      });
+      res.status(500).json({ error: err.message });
     }
   }
 );
@@ -277,53 +250,34 @@ app.delete(
   requireAuth,
   async (req, res) => {
     try {
-      const productos = getProductos();
+      const productos = await getProductos();
 
-      const idx = productos.findIndex(
-        p => p.id === req.params.id
-      );
+      const idx = productos.findIndex(p => p.id === req.params.id);
 
       if (idx === -1) {
-        return res.status(404).json({
-          error: 'No encontrado'
-        });
+        return res.status(404).json({ error: 'No encontrado' });
       }
 
       const prod = productos[idx];
 
-      // Eliminar imagen de Cloudinary solo si existe
+      // Eliminar imagen de Cloudinary si existe
       if (prod.imagenPublicId) {
         try {
-          await cloudinary.uploader.destroy(
-            prod.imagenPublicId
-          );
-
-          console.log(
-            'Imagen eliminada de Cloudinary'
-          );
-
+          await cloudinary.uploader.destroy(prod.imagenPublicId);
+          console.log('Imagen eliminada de Cloudinary');
         } catch (cloudErr) {
-          console.log(
-            'Error eliminando imagen Cloudinary:',
-            cloudErr.message
-          );
+          console.log('Error eliminando imagen Cloudinary:', cloudErr.message);
         }
       }
 
       productos.splice(idx, 1);
+      await saveProductos(productos);
 
-      saveProductos(productos);
-
-      res.json({
-        success: true
-      });
+      res.json({ success: true });
 
     } catch (err) {
       console.error(err);
-
-      res.status(500).json({
-        error: err.message
-      });
+      res.status(500).json({ error: err.message });
     }
   }
 );
@@ -332,53 +286,29 @@ app.delete(
 app.post('/api/admin/login', (req, res) => {
   const { usuario, password } = req.body;
 
-  if (
-    usuario === ADMIN_USER &&
-    password === ADMIN_PASS
-  ) {
+  if (usuario === ADMIN_USER && password === ADMIN_PASS) {
     req.session.admin = true;
-
-    res.json({
-      success: true
-    });
-
+    res.json({ success: true });
   } else {
-    res.status(401).json({
-      error: 'Credenciales incorrectas'
-    });
+    res.status(401).json({ error: 'Credenciales incorrectas' });
   }
 });
 
 app.post('/api/admin/logout', (req, res) => {
   req.session.destroy();
-
-  res.json({
-    success: true
-  });
+  res.json({ success: true });
 });
 
 app.get('/api/admin/check', (req, res) => {
-  res.json({
-    autenticado: !!(
-      req.session &&
-      req.session.admin
-    )
-  });
+  res.json({ autenticado: !!(req.session && req.session.admin) });
 });
 
 // ─── SPA fallback ─────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
-  res.sendFile(
-    path.join(__dirname, 'public', 'index.html')
-  );
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(
-    `✓ Servidor corriendo en http://localhost:${PORT}`
-  );
-
-  console.log(
-    `  Admin: usuario="${ADMIN_USER}" | contraseña="${ADMIN_PASS}"`
-  );
+  console.log(`✓ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`  Admin: usuario="${ADMIN_USER}" | contraseña="${ADMIN_PASS}"`);
 });
