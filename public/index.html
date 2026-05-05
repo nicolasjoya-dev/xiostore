@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<!-- ═══ NAV ═══════════════════════════════════════════════════════════════════ -->
 <header class="nav-header" id="navHeader">
   <div class="nav-inner">
     <button class="nav-toggle" id="navToggle" aria-label="Menu">
@@ -27,10 +26,9 @@
   </div>
 </header>
 
-<!-- ═══ PAGES ════════════════════════════════════════════════════════════════ -->
 <main id="appRoot">
 
-  <!-- ── INICIO ── -->
+  <!-- INICIO -->
   <section class="page active" id="page-inicio">
     <div class="hero">
       <div class="hero-bg"></div>
@@ -42,7 +40,6 @@
       </div>
       <div class="hero-scroll">scroll</div>
     </div>
-
     <section class="featured-section">
       <div class="section-header">
         <span class="section-tag">Selección</span>
@@ -54,7 +51,6 @@
         <div class="skeleton-card"></div>
       </div>
     </section>
-
     <section class="values-section">
       <div class="value-item">
         <div class="value-icon">◈</div>
@@ -74,7 +70,7 @@
     </section>
   </section>
 
-  <!-- ── CATÁLOGO ── -->
+  <!-- CATÁLOGO -->
   <section class="page" id="page-catalogo">
     <div class="page-hero-mini">
       <h1>Catálogo</h1>
@@ -83,9 +79,12 @@
     <div class="catalog-container">
       <div class="filter-bar">
         <button class="filter-btn active" data-cat="todos">Todos</button>
-        <button class="filter-btn" data-cat="Mujer">Mujer</button>
-        <button class="filter-btn" data-cat="Hombre">Hombre</button>
-        <button class="filter-btn" data-cat="Unisex">Unisex</button>
+        <button class="filter-btn" data-cat="Enterizo">Enterizo</button>
+        <button class="filter-btn" data-cat="Pantalones">Pantalones</button>
+        <button class="filter-btn" data-cat="Buzos">Buzos</button>
+        <button class="filter-btn" data-cat="Chaquetas">Chaquetas</button>
+        <button class="filter-btn" data-cat="Zapatos">Zapatos</button>
+        <button class="filter-btn" data-cat="Accesorios">Accesorios</button>
       </div>
       <div class="products-grid" id="catalogGrid">
         <div class="skeleton-card"></div>
@@ -96,7 +95,7 @@
     </div>
   </section>
 
-  <!-- ── CONTACTO ── -->
+  <!-- CONTACTO -->
   <section class="page" id="page-contacto">
     <div class="page-hero-mini">
       <h1>Contacto</h1>
@@ -109,14 +108,18 @@
           <span class="contact-icon">◎</span>
           <div>
             <strong>Dirección</strong>
-            <p>Calle 85 #11-54, Bogotá D.C., Colombia</p>
+            <p>Calle 10 #20-35, San Andresito San José<br/>CC Puerto Príncipe, Entrada 17 – Locales 273 y 275</p>
           </div>
         </div>
         <div class="contact-item">
           <span class="contact-icon">◈</span>
           <div>
             <strong>Horarios</strong>
-            <p>Lunes a Sábado: 10:00 am – 7:00 pm<br/>Domingo: 12:00 pm – 5:00 pm</p>
+            <p>
+              Lunes a Viernes: 9:30 am – 7:00 pm<br/>
+              Sábados: 9:00 am – 7:00 pm<br/>
+              Domingos y Festivos: 10:00 am – 4:30 pm
+            </p>
           </div>
         </div>
         <div class="contact-item">
@@ -130,18 +133,17 @@
           <span class="contact-icon">✦</span>
           <div>
             <strong>Correo</strong>
-            <p><a href="mailto:hola@maisonco.com">hola@maisonco.com</a></p>
+            <p><a href="mailto:Xiomaragitierrez0806@gmail.com">Xiomaragitierrez0806@gmail.com</a></p>
           </div>
         </div>
         <div class="social-links">
-          <a href="#" target="_blank">Instagram</a>
-          <a href="#" target="_blank">Facebook</a>
-          <a href="#" target="_blank">TikTok</a>
+          <a href="#" id="linkInstagram" target="_blank">Instagram</a>
+          <a href="#" id="linkTiktok" target="_blank">TikTok</a>
         </div>
       </div>
       <div class="map-wrapper">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.1234567!2d-74.0483!3d4.6597!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sCalle+85+%2311-54%2C+Bogot%C3%A1!5e0!3m2!1ses!2sco!4v1234567890"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8!2d-74.1012!3d4.6097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9a3b2a2a2a2a%3A0x0!2sCalle+10+%2320-35%2C+Bogot%C3%A1!5e0!3m2!1ses!2sco!4v1234567890"
           allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
           title="Ubicación XIOSTORE">
         </iframe>
@@ -149,9 +151,8 @@
     </div>
   </section>
 
-  <!-- ── ADMIN ── -->
+  <!-- ADMIN -->
   <section class="page" id="page-admin">
-    <!-- Login -->
     <div id="adminLogin" class="admin-login">
       <div class="login-box">
         <div class="login-brand">XIOSTORE <span>Admin</span></div>
@@ -169,19 +170,16 @@
       </div>
     </div>
 
-    <!-- Panel -->
     <div id="adminPanel" class="admin-panel hidden">
       <div class="admin-header">
         <h1>Panel de Administración</h1>
         <button class="btn-outline" id="btnLogout">Cerrar sesión</button>
       </div>
-
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="lista">📦 Productos</button>
         <button class="admin-tab" data-tab="nuevo">➕ Agregar</button>
       </div>
 
-      <!-- Lista de productos -->
       <div class="admin-content active" id="tab-lista">
         <div class="admin-search">
           <input type="text" id="adminSearch" placeholder="Buscar producto..." />
@@ -189,7 +187,6 @@
         <div id="adminProductList"></div>
       </div>
 
-      <!-- Formulario nuevo/editar -->
       <div class="admin-content" id="tab-nuevo">
         <form class="admin-form" id="productForm">
           <input type="hidden" id="editId" />
@@ -198,7 +195,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Nombre *</label>
-              <input type="text" id="fNombre" placeholder="Blazer Estructurado..." required />
+              <input type="text" id="fNombre" placeholder="Enterizo negro..." required />
             </div>
             <div class="form-group">
               <label>Precio (COP) *</label>
@@ -211,9 +208,12 @@
               <label>Categoría *</label>
               <select id="fCategoria" required>
                 <option value="">Seleccionar...</option>
-                <option value="Mujer">Mujer</option>
-                <option value="Hombre">Hombre</option>
-                <option value="Unisex">Unisex</option>
+                <option value="Enterizo">Enterizo</option>
+                <option value="Pantalones">Pantalones</option>
+                <option value="Buzos">Buzos</option>
+                <option value="Chaquetas">Chaquetas</option>
+                <option value="Zapatos">Zapatos</option>
+                <option value="Accesorios">Accesorios</option>
               </select>
             </div>
             <div class="form-group">
@@ -233,7 +233,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Material</label>
-              <input type="text" id="fMaterial" placeholder="100% Algodón, 70% Lana..." />
+              <input type="text" id="fMaterial" placeholder="100% Algodón..." />
             </div>
             <div class="form-group">
               <label>Cuidados</label>
@@ -252,17 +252,19 @@
             </div>
           </div>
 
+          <!-- MÚLTIPLES IMÁGENES -->
           <div class="form-group">
-            <label>Imagen del producto</label>
+            <label>Imágenes del producto <small>(puedes subir varias)</small></label>
             <div class="file-drop" id="fileDrop">
-              <input type="file" id="fImagen" accept="image/*" hidden />
-              <div class="file-drop-inner" onclick="document.getElementById('fImagen').click()">
+              <input type="file" id="fImagenes" accept="image/*" multiple hidden />
+              <div class="file-drop-inner" onclick="document.getElementById('fImagenes').click()">
                 <span class="file-icon">⊕</span>
-                <p>Clic para subir imagen</p>
-                <small>JPG, PNG, WEBP · Máx 5MB</small>
+                <p>Clic para subir imágenes</p>
+                <small>JPG, PNG, WEBP · Máx 5MB por imagen · Múltiples permitidas</small>
               </div>
-              <img id="imgPreview" class="img-preview hidden" alt="Vista previa" />
             </div>
+            <!-- Preview de imágenes -->
+            <div class="img-preview-grid" id="imgPreviewGrid"></div>
           </div>
 
           <div id="formMsg" class="form-msg hidden"></div>
@@ -278,32 +280,34 @@
 
 </main>
 
-<!-- ═══ MODAL PRODUCTO ════════════════════════════════════════════════════════ -->
+<!-- MODAL PRODUCTO -->
 <div class="modal-overlay" id="productModal">
   <div class="modal-box">
     <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-grid">
+      <!-- CARRUSEL DE IMÁGENES -->
       <div class="modal-img-wrap">
-        <img id="modalImg" src="" alt="" />
+        <div class="carousel" id="modalCarousel">
+          <div class="carousel-track" id="carouselTrack"></div>
+          <button class="carousel-btn carousel-prev" id="carouselPrev">&#8249;</button>
+          <button class="carousel-btn carousel-next" id="carouselNext">&#8250;</button>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
       </div>
       <div class="modal-details">
         <span class="modal-cat" id="modalCat"></span>
         <h2 class="modal-name" id="modalName"></h2>
         <p class="modal-price" id="modalPrice"></p>
         <p class="modal-desc" id="modalDesc"></p>
-
         <div class="selector-wrap">
           <label>Talla</label>
           <div class="size-options" id="sizeOptions"></div>
         </div>
-
         <div class="selector-wrap">
           <label>Color</label>
           <div class="color-options" id="colorOptions"></div>
         </div>
-
         <button class="btn-primary btn-buy" id="btnBuy">Comprar por WhatsApp</button>
-
         <details class="product-info-accordion">
           <summary>ℹ Información del producto</summary>
           <div class="info-body">
@@ -316,9 +320,7 @@
   </div>
 </div>
 
-<!-- ═══ TOAST ═════════════════════════════════════════════════════════════════ -->
 <div class="toast" id="toast"></div>
-
 <script src="/js/app.js"></script>
 </body>
 </html>
