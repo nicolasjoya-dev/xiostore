@@ -11,12 +11,19 @@ let editingId     = null;
 let carouselIndex = 0;
 let carouselImages = [];
 
-// Archivos nuevos a subir + URLs existentes al editar
-let pendingFiles    = []; // File[]
-let existingImages  = []; // string[] (URLs ya guardadas)
+let pendingFiles   = [];
+let existingImages = [];
 
 const WA_NUMBER = '573112835010';
 const $ = id => document.getElementById(id);
+
+// ─── Registrar visita (1 vez por sesión) ─────────────────────────────────────
+(function registrarVisita() {
+  if (sessionStorage.getItem('visitaRegistrada')) return;
+  fetch('/api/visita', { method: 'POST' })
+    .then(() => sessionStorage.setItem('visitaRegistrada', '1'))
+    .catch(() => {});
+})();
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 function navigate(page) {
@@ -58,7 +65,6 @@ function formatCOP(n) {
 
 // ─── Card HTML ────────────────────────────────────────────────────────────────
 function getFirstImage(p) {
-  // Soporta tanto array 'imagenes' como campo legacy 'imagen'
   if (Array.isArray(p.imagenes) && p.imagenes.length) return p.imagenes[0];
   if (p.imagen && !p.imagen.includes('placeholder')) return p.imagen;
   return null;
@@ -126,7 +132,6 @@ function buildCarousel(images) {
   carouselIndex  = 0;
   const track = $('carouselTrack');
   const dots  = $('carouselDots');
-
   if (!images || !images.length) {
     track.innerHTML = '<div class="carousel-placeholder">◈</div>';
     dots.innerHTML  = '';
@@ -134,15 +139,10 @@ function buildCarousel(images) {
     $('carouselNext').classList.add('hidden-btn');
     return;
   }
-
-  track.innerHTML = images.map(src =>
-    `<img src="${src}" alt="producto" loading="lazy" />`
-  ).join('');
-
+  track.innerHTML = images.map(src => `<img src="${src}" alt="producto" loading="lazy" />`).join('');
   dots.innerHTML = images.length > 1
     ? images.map((_, i) => `<div class="carousel-dot ${i===0?'active':''}" onclick="goCarousel(${i})"></div>`).join('')
     : '';
-
   updateCarouselBtns();
 }
 
@@ -161,7 +161,6 @@ function updateCarouselBtns() {
 $('carouselPrev').addEventListener('click', () => goCarousel(carouselIndex - 1));
 $('carouselNext').addEventListener('click', () => goCarousel(carouselIndex + 1));
 
-// Swipe táctil en carrusel
 let touchStartX = 0;
 $('modalCarousel').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
 $('modalCarousel').addEventListener('touchend', e => {
@@ -178,25 +177,20 @@ async function openModal(id) {
   currentModal  = product;
   selectedSize  = null;
   selectedColor = null;
-
-  $('modalCat').textContent   = product.categoria;
-  $('modalName').textContent  = product.nombre;
-  $('modalPrice').textContent = formatCOP(product.precio);
-  $('modalDesc').textContent  = product.descripcion;
+  $('modalCat').textContent    = product.categoria;
+  $('modalName').textContent   = product.nombre;
+  $('modalPrice').textContent  = formatCOP(product.precio);
+  $('modalDesc').textContent   = product.descripcion;
   $('infoMaterial').textContent = product.material  || '—';
   $('infoCuidados').textContent  = product.cuidados || '—';
-
-  // Construir array de imágenes
   let imgs = [];
   if (Array.isArray(product.imagenes) && product.imagenes.length) imgs = product.imagenes;
   else if (product.imagen && !product.imagen.includes('placeholder')) imgs = [product.imagen];
   buildCarousel(imgs);
-
   $('sizeOptions').innerHTML = (product.tallas || []).map(t =>
     `<button class="size-btn" onclick="selectSize(this,'${t}')">${t}</button>`).join('');
   $('colorOptions').innerHTML = (product.colores || []).map(c =>
     `<button class="color-btn" onclick="selectColor(this,'${c}')">${c}</button>`).join('');
-
   $('productModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -274,7 +268,18 @@ function showAdminPanel() {
   isAdmin = true;
   $('adminLogin').classList.add('hidden');
   $('adminPanel').classList.remove('hidden');
+  cargarVisitas();   // ← carga el contador
   loadAdminProducts();
+}
+
+// ─── CONTADOR DE VISITAS ──────────────────────────────────────────────────────
+async function cargarVisitas() {
+  try {
+    const data = await apiFetch('/api/admin/analytics');
+    $('statVisitas').textContent = Number(data.total).toLocaleString('es-CO');
+  } catch {
+    $('statVisitas').textContent = 'Error';
+  }
 }
 
 // ─── ADMIN TABS ───────────────────────────────────────────────────────────────
@@ -323,26 +328,22 @@ $('adminSearch').addEventListener('input', e => loadAdminProducts(e.target.value
 async function editProduct(id) {
   let product;
   try { product = await apiFetch(`/api/productos/${id}`); } catch { return; }
-
   editingId = id;
-  $('editId').value       = id;
+  $('editId').value          = id;
   $('formTitle').textContent = 'Editar Producto';
-  $('fNombre').value      = product.nombre;
-  $('fPrecio').value      = product.precio;
-  $('fCategoria').value   = product.categoria;
-  $('fDescripcion').value = product.descripcion;
-  $('fMaterial').value    = product.material || '';
-  $('fCuidados').value    = product.cuidados || '';
-  $('fTallas').value      = (product.tallas || []).join(', ');
-  $('fColores').value     = (product.colores || []).join(', ');
-  $('fDestacado').value   = String(product.destacado);
-
-  // Cargar imágenes existentes en el preview
+  $('fNombre').value         = product.nombre;
+  $('fPrecio').value         = product.precio;
+  $('fCategoria').value      = product.categoria;
+  $('fDescripcion').value    = product.descripcion;
+  $('fMaterial').value       = product.material || '';
+  $('fCuidados').value       = product.cuidados || '';
+  $('fTallas').value         = (product.tallas || []).join(', ');
+  $('fColores').value        = (product.colores || []).join(', ');
+  $('fDestacado').value      = String(product.destacado);
   pendingFiles   = [];
   existingImages = Array.isArray(product.imagenes) ? [...product.imagenes]
                    : (product.imagen && !product.imagen.includes('placeholder') ? [product.imagen] : []);
   renderPreviewGrid();
-
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.admin-content').forEach(c => c.classList.remove('active'));
   document.querySelector('[data-tab="nuevo"]').classList.add('active');
@@ -364,45 +365,30 @@ async function deleteProduct(id, nombre) {
 function renderPreviewGrid() {
   const grid = $('imgPreviewGrid');
   grid.innerHTML = '';
-
-  // Imágenes existentes (edición)
   existingImages.forEach((url, i) => {
     const div = document.createElement('div');
     div.className = 'img-preview-item';
-    div.innerHTML = `
-      <img src="${url}" alt="imagen" />
-      <div class="img-preview-remove" onclick="removeExisting(${i})">✕</div>`;
+    div.innerHTML = `<img src="${url}" alt="imagen" /><div class="img-preview-remove" onclick="removeExisting(${i})">✕</div>`;
     grid.appendChild(div);
   });
-
-  // Archivos nuevos pendientes
   pendingFiles.forEach((file, i) => {
     const div = document.createElement('div');
     div.className = 'img-preview-item';
     const reader = new FileReader();
     reader.onload = ev => {
-      div.innerHTML = `
-        <img src="${ev.target.result}" alt="nueva" />
-        <div class="img-preview-remove" onclick="removePending(${i})">✕</div>`;
+      div.innerHTML = `<img src="${ev.target.result}" alt="nueva" /><div class="img-preview-remove" onclick="removePending(${i})">✕</div>`;
     };
     reader.readAsDataURL(file);
     grid.appendChild(div);
   });
 }
 
-function removeExisting(i) {
-  existingImages.splice(i, 1);
-  renderPreviewGrid();
-}
-function removePending(i) {
-  pendingFiles.splice(i, 1);
-  renderPreviewGrid();
-}
+function removeExisting(i) { existingImages.splice(i, 1); renderPreviewGrid(); }
+function removePending(i)  { pendingFiles.splice(i, 1);   renderPreviewGrid(); }
 
 $('fImagenes').addEventListener('change', e => {
-  const files = Array.from(e.target.files);
-  pendingFiles = [...pendingFiles, ...files];
-  e.target.value = ''; // reset para permitir volver a seleccionar
+  pendingFiles = [...pendingFiles, ...Array.from(e.target.files)];
+  e.target.value = '';
   renderPreviewGrid();
 });
 
@@ -412,24 +398,18 @@ $('productForm').addEventListener('submit', async e => {
   const btn = $('btnSubmit');
   btn.textContent = 'Guardando...';
   btn.disabled = true;
-
   const formData = new FormData();
-  formData.append('nombre',       $('fNombre').value);
-  formData.append('precio',       $('fPrecio').value);
-  formData.append('categoria',    $('fCategoria').value);
-  formData.append('descripcion',  $('fDescripcion').value);
-  formData.append('material',     $('fMaterial').value);
-  formData.append('cuidados',     $('fCuidados').value);
-  formData.append('tallas',       $('fTallas').value);
-  formData.append('colores',      $('fColores').value);
-  formData.append('destacado',    $('fDestacado').value);
-
-  // Imágenes existentes que no se borraron
+  formData.append('nombre',      $('fNombre').value);
+  formData.append('precio',      $('fPrecio').value);
+  formData.append('categoria',   $('fCategoria').value);
+  formData.append('descripcion', $('fDescripcion').value);
+  formData.append('material',    $('fMaterial').value);
+  formData.append('cuidados',    $('fCuidados').value);
+  formData.append('tallas',      $('fTallas').value);
+  formData.append('colores',     $('fColores').value);
+  formData.append('destacado',   $('fDestacado').value);
   formData.append('imagenesExistentes', JSON.stringify(existingImages));
-
-  // Nuevos archivos
   pendingFiles.forEach(file => formData.append('imagenes', file));
-
   try {
     const url    = editingId ? `/api/admin/productos/${editingId}` : '/api/admin/productos';
     const method = editingId ? 'PUT' : 'POST';
@@ -445,17 +425,13 @@ $('productForm').addEventListener('submit', async e => {
         $('tab-lista').classList.add('active');
         loadAdminProducts();
       }, 1500);
-    } else {
-      showFormMsg('error', data.error || 'Error al guardar');
-    }
+    } else { showFormMsg('error', data.error || 'Error al guardar'); }
   } catch { showFormMsg('error', 'Error de conexión con el servidor'); }
   finally { btn.textContent = 'Guardar Producto'; btn.disabled = false; }
 });
 
 function resetForm() {
-  editingId      = null;
-  pendingFiles   = [];
-  existingImages = [];
+  editingId = null; pendingFiles = []; existingImages = [];
   $('editId').value = '';
   $('formTitle').textContent = 'Nuevo Producto';
   $('productForm').reset();

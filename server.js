@@ -24,7 +24,6 @@ const storage = new CloudinaryStorage({
   }
 });
 
-// ── CAMBIO 1: upload.array en lugar de upload.single ──────────────────────────
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }
@@ -48,6 +47,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+// ─── Productos helpers ────────────────────────────────────────────────────────
 async function getProductos() {
   const snapshot = await db.collection('productos').get();
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -85,6 +85,36 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'No autorizado' });
 }
 
+// ─── API: Visitas ─────────────────────────────────────────────────────────────
+// El frontend llama esto 1 vez por sesión
+app.post('/api/visita', async (req, res) => {
+  try {
+    const contadorRef = db.collection('analytics').doc('visitas');
+    await db.runTransaction(async t => {
+      const doc = await t.get(contadorRef);
+      if (!doc.exists) {
+        t.set(contadorRef, { total: 1 });
+      } else {
+        t.update(contadorRef, { total: admin.firestore.FieldValue.increment(1) });
+      }
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// El panel admin lee el contador
+app.get('/api/admin/analytics', requireAuth, async (req, res) => {
+  try {
+    const doc = await db.collection('analytics').doc('visitas').get();
+    const total = doc.exists ? doc.data().total : 0;
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── API: Productos ───────────────────────────────────────────────────────────
 app.get('/api/productos', async (req, res) => {
   try {
@@ -110,43 +140,27 @@ app.get('/api/productos/:id', async (req, res) => {
   }
 });
 
-// ─── CAMBIO 2: Crear producto — upload.array('imagenes', 10) ─────────────────
 app.post(
   '/api/admin/productos',
   requireAuth,
-  upload.array('imagenes', 10),   // ← antes: upload.single('imagen')
+  upload.array('imagenes', 10),
   async (req, res) => {
     try {
       const productos = await getProductos();
       const nuevoId = String(Date.now());
-
       const { nombre, precio, categoria, descripcion, material, cuidados, destacado } = req.body;
-
       const tallas = req.body.tallas ? req.body.tallas.split(',').map(t => t.trim()) : [];
       const colores = req.body.colores ? req.body.colores.split(',').map(c => c.trim()) : [];
-
-      // ── Construir arrays de URLs e IDs públicos ──────────────────────────────
-      const imagenes       = req.files ? req.files.map(f => f.path)     : [];
-      const imagenesIds    = req.files ? req.files.map(f => f.filename)  : [];
-
+      const imagenes    = req.files ? req.files.map(f => f.path)    : [];
+      const imagenesIds = req.files ? req.files.map(f => f.filename) : [];
       const nuevo = {
-        id: nuevoId,
-        nombre,
-        precio: Number(precio),
-        categoria,
-        descripcion,
-        material: material || '',
-        cuidados: cuidados || '',
-        tallas,
-        colores,
-        imagenes,          // ← array de URLs
-        imagenesIds,       // ← array de public_ids para borrar de Cloudinary
+        id: nuevoId, nombre, precio: Number(precio), categoria, descripcion,
+        material: material || '', cuidados: cuidados || '',
+        tallas, colores, imagenes, imagenesIds,
         destacado: destacado === 'true' || destacado === 'on'
       };
-
       productos.push(nuevo);
       await saveProductos(productos);
-
       res.json({ success: true, producto: nuevo });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -154,65 +168,36 @@ app.post(
   }
 );
 
-// ─── CAMBIO 3: Editar producto — combina existentes + nuevas ─────────────────
 app.put(
   '/api/admin/productos/:id',
   requireAuth,
-  upload.array('imagenes', 10),   // ← antes: upload.single('imagen')
+  upload.array('imagenes', 10),
   async (req, res) => {
     try {
       const productos = await getProductos();
       const idx = productos.findIndex(p => p.id === req.params.id);
       if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
-
       const prod = productos[idx];
       const { nombre, precio, categoria, descripcion, material, cuidados, destacado } = req.body;
-
-      const tallas = req.body.tallas
-        ? req.body.tallas.split(',').map(t => t.trim())
-        : prod.tallas;
-      const colores = req.body.colores
-        ? req.body.colores.split(',').map(c => c.trim())
-        : prod.colores;
-
-      // ── Imágenes que el admin decidió conservar (vienen como JSON string) ───
+      const tallas = req.body.tallas ? req.body.tallas.split(',').map(t => t.trim()) : prod.tallas;
+      const colores = req.body.colores ? req.body.colores.split(',').map(c => c.trim()) : prod.colores;
       let imagenesExistentes = [];
-      try {
-        imagenesExistentes = JSON.parse(req.body.imagenesExistentes || '[]');
-      } catch { imagenesExistentes = []; }
-
-      // ── Detectar cuáles IDs de Cloudinary ya no se usan y borrarlos ─────────
+      try { imagenesExistentes = JSON.parse(req.body.imagenesExistentes || '[]'); } catch { imagenesExistentes = []; }
       const imagenesIdsActuales = prod.imagenesIds || [];
       const imagenesUrlsActuales = prod.imagenes || [];
-
-      // IDs a eliminar: los que estaban pero cuya URL ya no está en imagenesExistentes
       const idsAEliminar = imagenesIdsActuales.filter((id, i) => {
         const url = imagenesUrlsActuales[i];
         return url && !imagenesExistentes.includes(url);
       });
-
       for (const publicId of idsAEliminar) {
-        try {
-          await cloudinary.uploader.destroy(publicId);
-        } catch (e) {
-          console.log('Error borrando imagen Cloudinary:', e.message);
-        }
+        try { await cloudinary.uploader.destroy(publicId); } catch (e) { console.log('Error borrando imagen:', e.message); }
       }
-
-      // ── IDs que se conservan ─────────────────────────────────────────────────
       const idsConservados = imagenesIdsActuales.filter((id, i) => {
         const url = imagenesUrlsActuales[i];
         return url && imagenesExistentes.includes(url);
       });
-
-      // ── Nuevas imágenes subidas ahora ────────────────────────────────────────
       const nuevasUrls = req.files ? req.files.map(f => f.path)    : [];
       const nuevasIds  = req.files ? req.files.map(f => f.filename) : [];
-
-      // ── Resultado final ──────────────────────────────────────────────────────
-      const imagenesFinal   = [...imagenesExistentes, ...nuevasUrls];
-      const imagenesIdsFinal = [...idsConservados, ...nuevasIds];
-
       productos[idx] = {
         ...prod,
         nombre:      nombre      || prod.nombre,
@@ -221,17 +206,12 @@ app.put(
         descripcion: descripcion || prod.descripcion,
         material:    material    !== undefined ? material : prod.material,
         cuidados:    cuidados    !== undefined ? cuidados : prod.cuidados,
-        tallas,
-        colores,
-        imagenes:    imagenesFinal,
-        imagenesIds: imagenesIdsFinal,
-        destacado:   destacado !== undefined
-          ? (destacado === 'true' || destacado === 'on')
-          : prod.destacado
+        tallas, colores,
+        imagenes:    [...imagenesExistentes, ...nuevasUrls],
+        imagenesIds: [...idsConservados, ...nuevasIds],
+        destacado:   destacado !== undefined ? (destacado === 'true' || destacado === 'on') : prod.destacado
       };
-
       await saveProductos(productos);
-
       res.json({ success: true, producto: productos[idx] });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -239,41 +219,26 @@ app.put(
   }
 );
 
-// ─── Eliminar producto ────────────────────────────────────────────────────────
-app.delete(
-  '/api/admin/productos/:id',
-  requireAuth,
-  async (req, res) => {
-    try {
-      const productos = await getProductos();
-      const idx = productos.findIndex(p => p.id === req.params.id);
-      if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
-
-      const prod = productos[idx];
-
-      // Eliminar TODAS las imágenes de Cloudinary
-      for (const publicId of (prod.imagenesIds || [])) {
-        try {
-          await cloudinary.uploader.destroy(publicId);
-        } catch (e) {
-          console.log('Error borrando imagen Cloudinary:', e.message);
-        }
-      }
-      // Compatibilidad con productos viejos que tenían campo singular
-      if (prod.imagenPublicId && !(prod.imagenesIds || []).includes(prod.imagenPublicId)) {
-        try { await cloudinary.uploader.destroy(prod.imagenPublicId); } catch {}
-      }
-
-      productos.splice(idx, 1);
-      await saveProductos(productos);
-
-      res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err.message });
+app.delete('/api/admin/productos/:id', requireAuth, async (req, res) => {
+  try {
+    const productos = await getProductos();
+    const idx = productos.findIndex(p => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+    const prod = productos[idx];
+    for (const publicId of (prod.imagenesIds || [])) {
+      try { await cloudinary.uploader.destroy(publicId); } catch (e) { console.log('Error borrando imagen:', e.message); }
     }
+    if (prod.imagenPublicId && !(prod.imagenesIds || []).includes(prod.imagenPublicId)) {
+      try { await cloudinary.uploader.destroy(prod.imagenPublicId); } catch {}
+    }
+    productos.splice(idx, 1);
+    await saveProductos(productos);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-);
+});
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 app.post('/api/admin/login', (req, res) => {

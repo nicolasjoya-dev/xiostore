@@ -419,3 +419,34 @@ img { display: block; max-width: 100%; }
   .login-box { padding: 36px 24px; }
   .page-hero-mini { padding: 40px 20px; }
 }
+/* ── Contador de visitas ── */
+.visitas-contador {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.visitas-icono {
+  font-size: 1.6rem;
+  opacity: 0.6;
+}
+
+.visitas-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  line-height: 1;
+}
+
+.visitas-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
